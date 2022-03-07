@@ -2,8 +2,6 @@ package main
 
 import (
 	"fmt"
-
-	"github.com/gookit/color"
 	c "github.com/gookit/color"
 	p "github.com/kamchy/gotodotxt/parse"
 )
@@ -17,25 +15,25 @@ const (
 	Tags
 )
 type Styler interface {
-	GetStyle(n TaskStyleName) *color.RGBStyle
+	GetStyle(n TaskStyleName) *c.RGBStyle
 }
 type StylerData struct {
-	Map map[TaskStyleName] *color.RGBStyle
+	Map map[TaskStyleName] *c.RGBStyle
 
 } 
 
-func (d StylerData) GetStyle(n TaskStyleName) *color.RGBStyle {
+func (d StylerData) GetStyle(n TaskStyleName) *c.RGBStyle {
 	return d.Map[n]
 }
 
 var sLight = StylerData{
 	Map: map[TaskStyleName]*c.RGBStyle{
-		Prio: color.NewRGBStyle(color.HslInt(20, 60, 60)),
-		Cont: color.NewRGBStyle(color.HslInt(100, 60, 60)),
-		Data: color.NewRGBStyle(color.HslInt(50, 60, 60)),
-		Contexts: color.NewRGBStyle(color.HslInt(250, 60, 60)),
-		Projects: color.NewRGBStyle(color.HslInt(300, 60, 60)),
-		Tags: color.NewRGBStyle(color.HslInt(350, 60, 60)),
+		Prio: c.NewRGBStyle(c.HslInt(20, 60, 60)),
+		Cont: c.NewRGBStyle(c.HslInt(100, 60, 60)),
+		Data: c.NewRGBStyle(c.HslInt(50, 60, 60)),
+		Contexts: c.NewRGBStyle(c.HslInt(250, 60, 60)),
+		Projects: c.NewRGBStyle(c.HslInt(300, 60, 60)),
+		Tags: c.NewRGBStyle(c.HslInt(350, 60, 60)),
 	},
 }
 func Render(t p.Task, s Styler){
