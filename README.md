@@ -1,5 +1,7 @@
 ![Logo of the project](gotodotxt.svg)
 
+[![Go](https://github.com/kamchy/todotxt/actions/workflows/go.yml/badge.svg)](https://github.com/kamchy/todotxt/actions/workflows/go.yml)
+
 # todotxt
 `todotxt`  commandine program displays tasks read from a file to terminal using lots of funny colors.
 
