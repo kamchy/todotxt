@@ -6,6 +6,7 @@ import (
 	"sort"
 	"strings"
 	"testing"
+	mt "github.com/kamchy/gotodotxt/test"
 	"time"
 )
 
@@ -49,7 +50,6 @@ var bytesValidData = []ByteValid{
 }
 
 func TestIsByteValid(t *testing.T) {
-
 	for i, d := range bytesValidData {
 		exp, act := d.V, IsByteValidPrio(d.B)
 		if exp != act {
@@ -71,11 +71,10 @@ var testParsePrioData = []TestParsePrio{
 	{"(D)ata", nil},
 }
 
-
 func comparePointersPrio(exp *Prio, act *Prio) bool {
-	return (exp == nil && act != nil) || 
-			(exp != nil && act == nil)|| 
-			(exp != nil && act != nil && *exp  != *act)
+	return (exp == nil && act != nil) ||
+		(exp != nil && act == nil) ||
+		(exp != nil && act != nil && *exp != *act)
 }
 
 func TestParse(t *testing.T) {
@@ -87,9 +86,9 @@ func TestParse(t *testing.T) {
 		exp, act := tpd.Priority, task.Priority
 
 		if comparePointersPrio(exp, act) {
-				t.Errorf("Prio is different: exp=%v, act=%v", exp, act);
+			t.Errorf("Prio is different: exp=%v, act=%v", exp, act)
 		}
-		
+
 	}
 }
 
@@ -97,13 +96,15 @@ type StrValidType struct {
 	S string
 	V bool
 }
-var data = []StrValidType {
+
+var data = []StrValidType{
 	{"asd(A)", false},
 	{"(B)asdasd", false},
 	{"(C)", true},
 	{"(a)", false},
 	{"C", false},
 }
+
 func TestRe(t *testing.T) {
 	t.Logf("testing %s", t.Name())
 	re := regexp.MustCompile(`^\([A-Z]\)$`)
@@ -113,22 +114,22 @@ func TestRe(t *testing.T) {
 			t.Errorf("match is nil for %v: %v", d, match)
 		}
 
-		if match != nil && match[0] != 0  && d.V {
+		if match != nil && match[0] != 0 && d.V {
 			t.Errorf("match start is not 0 for %v: %v", d, match)
 		}
 
 		if match != nil && match[0] == 0 && !d.V {
 			t.Errorf("match at 0 for %v but should not be: %v", d, match)
 		}
-		
 
 	}
 
 }
+
 type TestParseDoneStatusType struct {
 	Line           string
 	ExpectedStatus DoneStatus
-	StatusCorrect bool
+	StatusCorrect  bool
 }
 
 func MkTime(y, m, d int) time.Time {
@@ -154,22 +155,22 @@ var testParseDoneStatusData = []TestParseDoneStatusType{
 
 func (ds *DoneStatus) equals(other *DoneStatus) bool {
 	return (ds == nil && other == nil) ||
-		(ds != nil && other != nil && 
+		(ds != nil && other != nil &&
 			ds.IsDone == other.IsDone &&
 			((ds.StartDate == nil && other.StartDate == nil) ||
-			 (ds.StartDate != nil && other.StartDate != nil && ds.StartDate.Equal(*other.StartDate)) &&
-			 ((ds.EndDate == nil && other.EndDate == nil) ||
-			 (ds.EndDate != nil && other.EndDate != nil && ds.EndDate.Equal(*other.EndDate)))))
+				(ds.StartDate != nil && other.StartDate != nil && ds.StartDate.Equal(*other.StartDate)) &&
+					((ds.EndDate == nil && other.EndDate == nil) ||
+						(ds.EndDate != nil && other.EndDate != nil && ds.EndDate.Equal(*other.EndDate)))))
 }
 func TestTestParseDoneStatus(t *testing.T) {
 	for i, td := range testParseDoneStatusData {
 		// t.Logf("%d %s: Testing %v", i, t.Name(), td)
 		exp := td.ExpectedStatus
 		task, err := Parse(td.Line)
-		if (err != nil && td.StatusCorrect) || ( err == nil && !td.StatusCorrect){
-				t.Fail()
+		if (err != nil && td.StatusCorrect) || (err == nil && !td.StatusCorrect) {
+			t.Fail()
 		}
-		
+
 		act := task.Status
 		if !(&act).equals(&exp) {
 			t.Errorf("%d) Expected status\n%v, got:\n%v", i, exp, act)
@@ -178,13 +179,14 @@ func TestTestParseDoneStatus(t *testing.T) {
 }
 
 type ContentsDataType struct {
-	Text string
-	ExpText string
+	Text        string
+	ExpText     string
 	ExpContexts string
 	ExpProjects string
-	ExpTags string
+	ExpTags     string
 }
-var contentsData = []ContentsDataType {
+
+var contentsData = []ContentsDataType{
 	{"foo +home", "foo", "home", "", ""},
 	{"foo +home bar", "foo bar", "home", "", ""},
 	{"foo bar +home", "foo bar", "home", "", ""},
@@ -196,11 +198,7 @@ var contentsData = []ContentsDataType {
 	{"foo feel:good feel:sad time:high", "foo", "", "", "feel good sad time high"},
 }
 
-func assertEquals(t *testing.T, act string, exp string, desc string) {
-	if act != exp {
-		t.Errorf("%v: exp %v, act %v", desc, exp, act)
-	}
-}
+
 func flatten(m map[string][]string) string {
 	var res string
 	var keys = make([]string, len(m))
@@ -210,7 +208,7 @@ func flatten(m map[string][]string) string {
 	}
 	sort.Strings(keys)
 
-	for _, k := range keys {	
+	for _, k := range keys {
 		sort.Strings(m[k])
 		res += fmt.Sprintf(" %s %s", k, strings.TrimSpace(strings.Join(m[k], " ")))
 	}
@@ -220,9 +218,36 @@ func flatten(m map[string][]string) string {
 func TestParseContents(t *testing.T) {
 	for _, d := range contentsData {
 		act := ParseContents(strings.Fields(d.Text))
-		assertEquals(t, act.Data, d.ExpText, "task content")
-		assertEquals(t, strings.Join(act.Contexts, " "), d.ExpContexts, "contextx")
-		assertEquals(t, strings.Join(act.Projects, " "), d.ExpProjects, "projects")
-		assertEquals(t, flatten(act.Tags), d.ExpTags, "projects")
+		mt.AssertEquals(t, act.Data, d.ExpText, "task content")
+		mt.AssertEquals(t, strings.Join(act.Contexts, " "), d.ExpContexts, "contextx")
+		mt.AssertEquals(t, strings.Join(act.Projects, " "), d.ExpProjects, "projects")
+		mt.AssertEquals(t, flatten(act.Tags), d.ExpTags, "projects")
+	}
+}
+
+type TagNameDataType struct {
+	T            Task
+	ExpectedTags []string
+}
+
+type mm = map[string][]string
+
+var TagNameData = []TagNameDataType{
+	{T: Task{Tags: mm{"foo": []string{"bar"}}}, ExpectedTags: []string{"foo"}},
+	{T: Task{}, ExpectedTags: []string{}},
+	{T: Task{Tags: mm{"foo": []string{"bar", "baz"}}}, ExpectedTags: []string{"foo"}},
+	{T: Task{Tags: mm{
+		"foo":  []string{"bar"},
+		"bing": []string{"bang"},
+		"head": []string{"ache"},
+	}}, ExpectedTags: []string{"foo", "bing", "head"}},
+}
+
+func TestTagNames(t *testing.T) {
+	for _, data := range TagNameData {
+		task, expTags := data.T, data.ExpectedTags
+		act := task.TagNames()
+		mt.AssertEqualArrays(t, "Task tags' keys invalid", act, expTags)
+
 	}
 }

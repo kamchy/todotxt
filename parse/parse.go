@@ -48,19 +48,47 @@ type Task struct {
 	Tags     map[string][]string
 }
 
+// TagNames returns list of all tag names in Task's Tags field
+func (t Task) TagNames() []string {
+	res := make([]string, 0)
+	for k := range t.Tags {
+		res = append(res, k)
+	}
+	return res
+}
+
 type DoneStatus struct {
 	IsDone    bool
 	EndDate   *time.Time
 	StartDate *time.Time
 }
 
+type ParseError struct {
+	Message string
+}
+func (p *ParseError) Error() string {
+	return fmt.Sprintf("Error parsing task: %s", p.Message)
+}
 func ParseDone(fs []string) ([]string, DoneStatus, error) {
+	if len(fs) == 0 {
+		return fs, DoneStatus{}, &ParseError{"Task is empty line"}
+	} 
+
 	if fs[0] != "x" {
 		return fs, DoneStatus{IsDone: false}, nil
 	}
+
+	if len(fs) <= 1 {
+		return fs, DoneStatus{IsDone: true}, nil
+	}
+
 	endDate, err := time.ParseInLocation(DATE_SIMPLE, fs[1], time.Local)
 	if err != nil {
 		return fs[1:], DoneStatus{true, nil, nil}, nil
+	}
+
+	if len(fs) < 3 {
+		return fs, DoneStatus{}, &ParseError{"Starting date missing"}
 	}
 
 	startDate, err := time.ParseInLocation(DATE_SIMPLE, fs[2], time.Local)
@@ -69,13 +97,14 @@ func ParseDone(fs []string) ([]string, DoneStatus, error) {
 
 	}
 	if startDate.After(endDate) {
-		return nil, DoneStatus{}, fmt.Errorf("end Date %v is before Start Date %v", endDate, startDate)
+		return nil, DoneStatus{}, 
+		&ParseError{fmt.Sprintf("end Date %v is before Start Date %v", endDate, startDate)}
 
 	}
 	return fs[3:], DoneStatus{true, &endDate, &startDate}, nil
 }
 
-// Parse parses string s and returns Task
+// Parse parses string s and returns Task and error
 func Parse(s string) (Task, error) {
 	s = strings.TrimSpace(s)
 	fs := strings.Fields(s)
@@ -88,13 +117,13 @@ func Parse(s string) (Task, error) {
 	contents := ParseContents(fs)
 
 	return Task{
-		Status: doneStatus, 
-		Priority: prio, 
-		Data: contents.Data, 
+		Status:   doneStatus,
+		Priority: prio,
+		Data:     contents.Data,
 		Projects: contents.Projects,
 		Contexts: contents.Contexts,
-		Tags: contents.Tags,
-		}, nil
+		Tags:     contents.Tags,
+	}, nil
 }
 
 type Contents struct {

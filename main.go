@@ -1,33 +1,42 @@
 package main
 
 import (
-	"fmt"
+	"os"
+
 	c "github.com/gookit/color"
 	p "github.com/kamchy/gotodotxt/parse"
 )
-type TaskStyleName int
+type TaskPart int
 const (
-	Prio TaskStyleName = iota;
+	Prio TaskPart = iota;
 	Cont
 	Data
 	Contexts
 	Projects
 	Tags
 )
+var TaskPartNames = map[TaskPart]string {
+	Prio: "Part: Priority",
+	Cont: "Part: Contents",
+	Data: "Part: Data",
+	Contexts: "Part: Contexts",
+	Projects: "Part: Projects",
+	Tags: "Part: Tags",
+}
 type Styler interface {
-	GetStyle(n TaskStyleName) *c.RGBStyle
+	GetStyle(n TaskPart) *c.RGBStyle
 }
 type StylerData struct {
-	Map map[TaskStyleName] *c.RGBStyle
+	Map map[TaskPart] *c.RGBStyle
 
 } 
 
-func (d StylerData) GetStyle(n TaskStyleName) *c.RGBStyle {
+func (d StylerData) GetStyle(n TaskPart) *c.RGBStyle {
 	return d.Map[n]
 }
 
 var sLight = StylerData{
-	Map: map[TaskStyleName]*c.RGBStyle{
+	Map: map[TaskPart]*c.RGBStyle{
 		Prio: c.NewRGBStyle(c.HslInt(20, 60, 60)),
 		Cont: c.NewRGBStyle(c.HslInt(100, 60, 60)),
 		Data: c.NewRGBStyle(c.HslInt(50, 60, 60)),
@@ -51,13 +60,22 @@ func Render(t p.Task, s Styler){
 	for k, tl := range t.Tags{
 		s.GetStyle(Tags).Printf(" %v: %v", k, tl)
 	}
+	c.Println()
+	c.Reset()
 }
 
 func main() {
-	t, e := p.Parse("(A) nauczyć się go @praca +kuchnia feel:good feel:down")
-	if e != nil {
-		fmt.Printf("Error: Cannot parse %v", e)
-
+	args := os.Args
+	if len(args) < 1 {
+		c.Blue.Println("Expected name of file")
+		os.Exit(0)
 	}
-	Render(t, sLight)
+	
+	tasks, errors :=  ReadFromFile(args[1])
+	for _, task := range(tasks) {
+		Render(task, sLight)
+	}
+	for i, err := range errors  {
+		c.Errorf("Line %d: %v\n", i, err)
+	}
 }
