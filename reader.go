@@ -10,7 +10,6 @@ import (
 
 	"github.com/gookit/color"
 	p "github.com/kamchy/gotodotxt/parse"
-	
 )
 
 func ReadTasks(r io.Reader) ([]p.Task, []error) {
@@ -33,6 +32,7 @@ func check(desc string, e error) {
 		color.Errorf("%s: %v", desc, e)
 	}
 }
+
 // ReadFromFile reads tasks from file with given name
 // and returns array of tasks and corresponding array of errors
 func ReadFromFile(s string) ([]p.Task, []error) {
@@ -54,11 +54,11 @@ func dedup(s []string) []string {
 	sort.Strings(s)
 	var res []string = make([]string, 0)
 	curr := s[0]
-	if  len(curr) > 0 {
+	if len(curr) > 0 {
 		res = append(res, curr)
 	}
 	for i := 1; i < len(s); i++ {
-		if s[i] != curr && s[i] != ""{
+		if s[i] != curr && s[i] != "" {
 			res = append(res, s[i])
 			curr = s[i]
 		}
@@ -70,13 +70,13 @@ type partDataRetriever = func(p.Task) []string
 
 func makePartMapper() map[TaskPart]partDataRetriever {
 	var m map[TaskPart]partDataRetriever = make(map[TaskPart]partDataRetriever)
-	m[Prio] = func(t p.Task) []string { 
+	m[Prio] = func(t p.Task) []string {
 		if t.Priority != nil {
 			return []string{t.Priority.String()}
 		} else {
 			return []string{}
 		}
-	} 
+	}
 	m[Cont] = func(t p.Task) []string { return []string{t.Data} }
 	m[Contexts] = func(t p.Task) []string { return t.Contexts }
 	m[Projects] = func(t p.Task) []string { return t.Projects }

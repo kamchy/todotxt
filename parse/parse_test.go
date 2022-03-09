@@ -218,10 +218,10 @@ func flatten(m map[string][]string) string {
 func TestParseContents(t *testing.T) {
 	for _, d := range contentsData {
 		act := ParseContents(strings.Fields(d.Text))
-		mt.AssertEquals(t, act.Data, d.ExpText, "task content")
-		mt.AssertEquals(t, strings.Join(act.Contexts, " "), d.ExpContexts, "contextx")
-		mt.AssertEquals(t, strings.Join(act.Projects, " "), d.ExpProjects, "projects")
-		mt.AssertEquals(t, flatten(act.Tags), d.ExpTags, "projects")
+		mt.AssertEquals(t, "task content",  d.ExpText, act.Data)
+		mt.AssertEquals(t, "contextx",  d.ExpContexts,strings.Join(act.Contexts, " "))
+		mt.AssertEquals(t, "projects", d.ExpProjects, strings.Join(act.Projects, " "))
+		mt.AssertEquals(t, "projects", d.ExpTags,  flatten(act.Tags))
 	}
 }
 

@@ -43,20 +43,42 @@ var TestReadTasksData = []TaskReaderTestType{
 	{`foo bar
 blabla
 x done 1
-x done 2 +home`, 4, Strs{}, Strs{"foo bar", "blabla", "done 1", "done 2"}, Strs{"home"}, Strs{}, Strs{}, Strs{}},
+x done 2 +home`, 4,
+		Strs{},
+		Strs{"foo bar", "blabla", "done 1", "done 2"},
+		Strs{"home"},
+		Strs{},
+		Strs{},
+		Strs{}},
 	{`(A) foo bar +work
 (B) blabla @life @kids
 x done 1
-x done 2 +home`, 4, Strs{"(A)", "(B)"}, Strs{"foo bar", "blabla", "done 1", "done 2"}, Strs{"home", "work"}, Strs{"life", "kids"}, Strs{}, Strs{}},
+x done 2 +home`, 4,
+		Strs{"(A)", "(B)"},
+		Strs{"foo bar", "blabla", "done 1", "done 2"},
+		Strs{"home", "work"},
+		Strs{"life", "kids"},
+		Strs{},
+		Strs{}},
 	{`foo bar
 (C) blabla
 x 2022-02-12 lksdjf done 1
-x done 2 +home foo:bar bing:bang`, 3, Strs{"(C)"}, Strs{"foo bar", "blabla", "done 2"}, Strs{"home"}, Strs{}, Strs{"Could not parse task line"}, Strs{"foo", "bing"}},
+x done 2 +home foo:bar bing:bang`, 3,
+		Strs{"(C)"},
+		Strs{"foo bar", "blabla", "done 2"},
+		Strs{"home"},
+		Strs{},
+		Strs{"could not parse task line"},
+		Strs{"bing", "foo"}},
 	{`
 blabla
 x done 1
-x done 2 +home`, 3, Strs{}, Strs{"blabla", "done 1", "done 2"}, Strs{"home"},
-		Strs{}, Strs{"Task is empty line"}, Strs{}},
+x done 2 +home repeat:daily`, 3,
+		Strs{},
+		Strs{"blabla", "done 1", "done 2"}, Strs{"home"},
+		Strs{},
+		Strs{"Task is empty line"},
+		Strs{"repeat"}},
 }
 
 func TestReadTasks(t *testing.T) {
