@@ -50,6 +50,10 @@ var sLight = StylerData{
 }
 
 func Render(t p.Task, s Styler) {
+	if t.Status.IsDone {
+		c.Grayln(t.Line)
+		return
+	}
 	if t.Priority != nil {
 		s.GetStyle(Prio).Printf("%v ", t.Priority)
 	}

@@ -40,6 +40,7 @@ func NewPrio(c byte) *Prio {
 
 // Task is the task representation
 type Task struct {
+	Line string
 	Data     string
 	Status   DoneStatus
 	Priority *Prio
@@ -117,6 +118,7 @@ func Parse(s string) (Task, error) {
 	contents := ParseContents(fs)
 
 	return Task{
+		Line: s,
 		Status:   doneStatus,
 		Priority: prio,
 		Data:     contents.Data,

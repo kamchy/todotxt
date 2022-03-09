@@ -251,3 +251,12 @@ func TestTagNames(t *testing.T) {
 
 	}
 }
+
+func TestGetLine(t *testing.T) {
+	line := "+ todo @home"
+	task, err := Parse(line)
+	if err != nil {
+		t.Fail()
+	}
+	mt.AssertEquals(t, "Line field should be equal to input line", line, task.Line)
+}
